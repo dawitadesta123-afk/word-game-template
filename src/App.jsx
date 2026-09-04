@@ -188,3 +188,44 @@ const App = () => {
                     <div 
                       key={idx} 
                       onClick={() => { setInputVal(title); setShowSuggestions(false); }}
+ onMouseOut={(e) => e.target.style.background = 'transparent'}
+                    >
+                      {title}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <button onClick={submitGuess} style={{ width: '100%', padding: '16px', border: 'none', borderRadius: '12px', background: 'linear-gradient(45deg, #ff4e50, #f9d423)', color: '#fff', fontWeight: 'bold', fontSize: '18px', cursor: 'pointer', boxShadow: '0 4px 15px rgba(255, 78, 80, 0.2)' }}>
+              SUBMIT GUESS
+            </button>
+
+            <div style={{ marginTop: '24px', display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'left' }}>
+              {pastGuesses.map((g, i) => (
+                <div key={i} style={{ padding: '12px 16px', borderRadius: '8px', fontSize: '15px', background: '#1f1f2e', color: '#aaa', border: '1px solid rgba(255,255,255,0.05)' }}>❌ {g}</div>
+              ))}
+            </div>
+
+          </div>
+        ) : (
+          <div style={{ padding: '20px 0' }}>
+            <div style={{ fontSize: '64px', marginBottom: '12px' }}>{isWin ? '🎉' : '💀'}</div>
+            <h2 style={{ margin: '0 0 12px 0', fontSize: '32px', fontWeight: '800' }}>{isWin ? 'You Got It!' : 'Game Over'}</h2>
+            <p style={{ color: '#aaa', margin: '0 0 24px 0', fontSize: '16px' }}>
+              {isWin ? `Splendid! You guessed the movie in ${currentAttempt + 1}/${maxAttempts} attempts.` : 'Better luck next time!'}
+            </p>
+            <div style={{ maxWidth: '500px', margin: '0 auto 24px auto', background: '#1f1f2e', padding: '20px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+              <span style={{ fontSize: '13px', color: '#7a7a9a', display: 'block', marginBottom: '4px', letterSpacing: '0.5px' }}>THE ANSWER WAS:</span>
+              <strong style={{ fontSize: '24px', color: '#fff' }}>{secretMovie.title}</strong>
+            </div>
+            <button onClick={startNewGame} style={{ padding: '16px 40px', border: 'none', background: 'linear-gradient(45deg, #ff4e50, #f9d423)', color: '#fff', borderRadius: '12px', cursor: 'pointer', fontSize: '18px', fontWeight: 'bold', boxShadow: '0 5px 15px rgba(255, 78, 80, 0.3)' }}>
+             </button>
+</div>
+)}
+</div>
+</div>
+);
+};
+
+export default App;
