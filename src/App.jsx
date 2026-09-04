@@ -188,5 +188,3 @@ const App = () => {
                     <div 
                       key={idx} 
                       onClick={() => { setInputVal(title); setShowSuggestions(false); }}
-                      style={{ padding: '14px 16px', cursor: 'pointer', fontSize: '15px', borderBottom: '1px solid rgba(255,255,255,0.05)', color: '#fff' }}
-                      onMouseOver={(e) => e.target.style.background = '#252538'}
