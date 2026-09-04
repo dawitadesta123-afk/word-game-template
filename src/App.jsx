@@ -220,7 +220,7 @@ const App = () => {
               <strong style={{ fontSize: '24px', color: '#fff' }}>{secretMovie.title}</strong>
             </div>
             <button onClick={startNewGame} style={{ padding: '16px 40px', border: 'none', background: 'linear-gradient(45deg, #ff4e50, #f9d423)', color: '#fff', borderRadius: '12px', cursor: 'pointer', fontSize: '18px', fontWeight: 'bold', boxShadow: '0 5px 15px rgba(255, 78, 80, 0.3)' }}>
-             </button>
+             </button>Play Again
 </div>
 )}
 </div>
