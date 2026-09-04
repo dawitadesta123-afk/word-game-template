@@ -1,5 +1,57 @@
 import { useState, useEffect } from 'react';
 
+const MOVIE_POOL = [
+  { title: "Star Wars: A New Hope", quote: "May the Force be with you." },
+  { title: "The Matrix", quote: "There is no spoon." },
+  { title: "Avatar", quote: "I see you." },
+  { title: "Titanic", quote: "I'll never let go, Jack." },
+  { title: "Inception", quote: "Your mind is the scene of the crime." },
+  { title: "Jaws", quote: "You're gonna need a bigger boat." },
+  { title: "The Lion King", quote: "Remember who you are." },
+  { title: "The Dark Knight", quote: "Why so serious?" },
+  { title: "Toy Story", quote: "To infinity and beyond!" },
+  { title: "Gladiator", quote: "Are you not entertained?" },
+  { title: "The Wizard of Oz", quote: "There's no place like home." },
+  { title: "Forrest Gump", quote: "Life is like a box of chocolates." },
+  { title: "The Terminator", quote: "I'll be back." },
+  { title: "Back to the Future", quote: "Roads? Where we're going, we don't need roads." },
+  { title: "Jurassic Park", quote: "Welcome to Jurassic Park." },
+  { title: "Spider-Man", quote: "With great power comes great responsibility." },
+  { title: "Finding Nemo", quote: "Just keep swimming." },
+  { title: "The Avengers", quote: "I am Iron Man." },
+  { title: "The Godfather", quote: "I'm gonna make him an offer he can't refuse." },
+  { title: "The Shining", quote: "Here's Johnny!" },
+  { title: "E.T. the Extra-Terrestrial", quote: "E.T. phone home." },
+  { title: "Scarface", quote: "Say 'hello' to my little friend!" },
+  { title: "Fight Club", quote: "The first rule of Fight Club is: You do not talk about Fight Club." },
+  { title: "Pulp Fiction", quote: "They call it a Royale with cheese." },
+  { title: "The Sixth Sense", quote: "I see dead people." },
+  { title: "Braveheart", quote: "They may take our lives, but they'll never take our freedom!" },
+  { title: "Rocky", quote: "Yo, Adrian!" },
+  { title: "The Shawshank Redemption", quote: "Get busy living, or get busy dying." },
+  { title: "Top Gun", quote: "I feel the need... the need for speed!" },
+  { title: "Shrek", quote: "Ogres are like onions." },
+  { title: "Monsters Inc", quote: "Put that thing back where it came from, or so help me!" },
+  { title: "Up", quote: "Adventure is out there!" },
+  { title: "The Incredibles", quote: "Where is my super suit?" },
+  { title: "Cars", quote: "Ka-chow!" },
+  { title: "Home Alone", quote: "Keep the change, ya filthy animal." },
+  { title: "Elf", quote: "The best way to spread Christmas cheer is singing loud for all to hear." },
+  { title: "Mean Girls", quote: "On Wednesdays we wear pink." },
+  { title: "The Hunger Games", quote: "May the odds be ever in your favor." },
+  { title: "Harry Potter and the Sorcerer's Stone", quote: "You're a wizard, Harry." },
+  { title: "Ghostbusters", quote: "Who you gonna call?" },
+  { title: "The Princess Bride", quote: "Hello. My name is Inigo Montoya. You killed my father. Prepare to die." },
+  { title: "The Breakfast Club", quote: "Don't you forget about me." },
+  { title: "Ferris Bueller's Day Off", quote: "Life moves pretty fast." },
+  { title: "The Hangover", quote: "What happens in Vegas stays in Vegas." },
+  { title: "Superbad", quote: "I am McLovin." },
+  { title: "Step Brothers", quote: "Did we just become best friends?" },
+  { title: "Twilight", quote: "About three things I was absolutely positive." },
+  { title: "Black Panther", quote: "Wakanda forever!" },
+  { title: "Guardians of the Galaxy", quote: "We are Groot." }
+];
+
 const App = () => {
   const [secretMovie, setSecretMovie] = useState({ title: "", quote: "" });
   const [currentAttempt, setCurrentAttempt] = useState(0);
@@ -10,27 +62,11 @@ const App = () => {
   const [gameOver, setGameOver] = useState(false);
   const [isWin, setIsWin] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [moviePool, setMoviePool] = useState([]);
 
-  const blurLevels =[30, 20, 10, 5, 0];
-
-  // Automatically fetches your 500 movie registry on launch
-  useEffect(() => {
-    fetch('https://jsonbin.io')
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data) && data.length > 0) {
-          setMoviePool(data);
-          const randomMovie = data[Math.floor(Math.random() * data.length)];
-          setSecretMovie(randomMovie);
-        }
-      })
-      .catch(err => console.error("Database syncing failed: ", err));
-  }, []);
+  const blurLevels =;
 
   const startNewGame = () => {
-    if (moviePool.length === 0) return;
-    const randomMovie = moviePool[Math.floor(Math.random() * moviePool.length)];
+    const randomMovie = MOVIE_POOL[Math.floor(Math.random() * MOVIE_POOL.length)];
     setSecretMovie(randomMovie);
     setCurrentAttempt(0);
     setInputVal('');
@@ -39,16 +75,20 @@ const App = () => {
     setIsWin(false);
   };
 
+  useEffect(() => {
+    startNewGame();
+  }, []);
+
   const handleInputChange = (e) => {
     const val = e.target.value;
     setInputVal(val);
-    if (!val || moviePool.length === 0) {
+    if (!val) {
       setSuggestions([]);
       return;
     }
-    const matches = moviePool.map(m => m.title).filter((title, index, self) => 
+    const matches = MOVIE_POOL.map(m => m.title).filter((title, index, self) => 
       title.toLowerCase().includes(val.toLowerCase()) && self.indexOf(title) === index
-    ).slice(0, 8); // Limits autocomplete list to top 8 items so it stays sleek
+    ).slice(0, 8);
     setSuggestions(matches);
     setShowSuggestions(true);
   };
@@ -57,7 +97,7 @@ const App = () => {
     if (!inputVal.trim() || gameOver) return;
 
     const guess = inputVal.trim();
-    const isValidMovie = moviePool.some(m => m.title.toLowerCase() === guess.toLowerCase());
+    const isValidMovie = MOVIE_POOL.some(m => m.title.toLowerCase() === guess.toLowerCase());
     if (!isValidMovie) {
       alert("Please select a movie title directly from the autocomplete dropdown list!");
       return;
@@ -107,12 +147,10 @@ const App = () => {
         
         <div style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '20px', marginBottom: '30px' }}>
           <h1 style={{ fontSize: '42px', margin: 0, fontWeight: '900', letterSpacing: '6px', background: 'linear-gradient(45deg, #ff4e50, #f9d423)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>MOVIELE</h1>
-          <p style={{ fontSize: '14px', color: '#aaa', margin: '6px 0 0 0', letterSpacing: '2px', fontWeight: 'bold' }}>500 MOVIE MEGALIST MODE</p>
+          <p style={{ fontSize: '14px', color: '#aaa', margin: '6px 0 0 0', letterSpacing: '2px', fontWeight: 'bold' }}>MEGA SHUFFLE MODE</p>
         </div>
 
-        {moviePool.length === 0 ? (
-          <p style={{ color: '#ffb703', fontSize: '18px', fontWeight: 'bold' }}>🎬 Loading up your 500 movie database... One brief moment!</p>
-        ) : !gameOver ? (
+        {!gameOver ? (
           <div>
             <div style={{ position: 'relative', width: '260px', height: '370px', margin: '0 auto 30px auto', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 10px 25px rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.1)' }}>
               <svg viewBox="0 0 200 300" style={{ width: '100%', height: '100%', filter: `blur(${blurLevels[currentAttempt]}px)`, transition: 'filter 0.5s ease' }}>
@@ -141,7 +179,7 @@ const App = () => {
                 onChange={handleInputChange}
                 onFocus={() => setShowSuggestions(true)}
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 250)}
-                placeholder="Search across 500 cinematic blockbusters..." 
+                placeholder="Search across dozens of blockbuster movies..." 
                 style={{ width: '100%', boxSizing: 'border-box', padding: '16px 22px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.15)', background: '#0f0f15', color: '#fff', fontSize: '16px', outline: 'none' }}
               />
               {showSuggestions && suggestions.length > 0 && (
@@ -152,45 +190,3 @@ const App = () => {
                       onClick={() => { setInputVal(title); setShowSuggestions(false); }}
                       style={{ padding: '14px 16px', cursor: 'pointer', fontSize: '15px', borderBottom: '1px solid rgba(255,255,255,0.05)', color: '#fff' }}
                       onMouseOver={(e) => e.target.style.background = '#252538'}
-                      onMouseOut={(e) => e.target.style.background = 'transparent'}
-                    >
-                      {title}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <button onClick={submitGuess} style={{ width: '100%', padding: '16px', border: 'none', borderRadius: '12px', background: 'linear-gradient(45deg, #ff4e50, #f9d423)', color: '#fff', fontWeight: 'bold', fontSize: '18px', cursor: 'pointer', boxShadow: '0 4px 15px rgba(255, 78, 80, 0.2)' }}>
-              SUBMIT GUESS
-            </button>
-
-            <div style={{ marginTop: '24px', display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'left' }}>
-              {pastGuesses.map((g, i) => (
-                <div key={i} style={{ padding: '12px 16px', borderRadius: '8px', fontSize: '15px', background: '#1f1f2e', color: '#aaa', border: '1px solid rgba(255,255,255,0.05)' }}>❌ {g}</div>
-              ))}
-            </div>
-
-          </div>
-        ) : (
-          <div style={{ padding: '20px 0' }}>
-            <div style={{ fontSize: '64px', marginBottom: '12px' }}>{isWin ? '🎉' : '💀'}</div>
-            <h2 style={{ margin: '0 0 12px 0', fontSize: '32px', fontWeight: '800' }}>{isWin ? 'You Got It!' : 'Game Over'}</h2>
-            <p style={{ color: '#aaa', margin: '0 0 24px 0', fontSize: '16px' }}>
-              {isWin ? `Splendid! You guessed the movie in ${currentAttempt + 1}/${maxAttempts} attempts.` : 'Better luck next time!'}
-            </p>
-            <div style={{ maxWidth: '500px', margin: '0 auto 24px auto', background: '#1f1f2e', padding: '20px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
-              <span style={{ fontSize: '13px', color: '#7a7a9a', display: 'block', marginBottom: '4px', letterSpacing: '0.5px' }}>THE ANSWER WAS:</span>
-              <strong style={{ fontSize: '24px', color: '#fff' }}>{secretMovie.title}</strong>
-            </div>
-            <button onClick={startNewGame} style={{ padding: '16px 40px', border: 'none', background: 'linear-gradient(45deg, #ff4e50, #f9d423)', color: '#fff', borderRadius: '12px', cursor: 'pointer', fontSize: '18px', fontWeight: 'bold', boxShadow: '0 5px 15px rgba(255, 78, 80, 0.3)' }}>
-              Play Again
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-export default App;
