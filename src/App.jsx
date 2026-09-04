@@ -1,13 +1,5 @@
 import { useState, useEffect } from 'react';
 
-const MOVIE_POOL = [
-  { title: "Star Wars: A New Hope", quote: "May the Force be with you." },
-  { title: "The Matrix", quote: "There is no spoon." },
-  { title: "Avatar", quote: "I see you." },
-  { title: "Titanic", quote: "I'll never let go, Jack." },
-  { title: "Inception", quote: "Your mind is the scene of the crime." }
-];
-
 const App = () => {
   const [secretMovie, setSecretMovie] = useState({ title: "", quote: "" });
   const [currentAttempt, setCurrentAttempt] = useState(0);
@@ -18,11 +10,27 @@ const App = () => {
   const [gameOver, setGameOver] = useState(false);
   const [isWin, setIsWin] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [moviePool, setMoviePool] = useState([]);
 
   const blurLevels =[30, 20, 10, 5, 0];
 
+  // Automatically fetches your 500 movie registry on launch
+  useEffect(() => {
+    fetch('https://jsonbin.io')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setMoviePool(data);
+          const randomMovie = data[Math.floor(Math.random() * data.length)];
+          setSecretMovie(randomMovie);
+        }
+      })
+      .catch(err => console.error("Database syncing failed: ", err));
+  }, []);
+
   const startNewGame = () => {
-    const randomMovie = MOVIE_POOL[Math.floor(Math.random() * MOVIE_POOL.length)];
+    if (moviePool.length === 0) return;
+    const randomMovie = moviePool[Math.floor(Math.random() * moviePool.length)];
     setSecretMovie(randomMovie);
     setCurrentAttempt(0);
     setInputVal('');
@@ -31,20 +39,16 @@ const App = () => {
     setIsWin(false);
   };
 
-  useEffect(() => {
-    startNewGame();
-  }, []);
-
   const handleInputChange = (e) => {
     const val = e.target.value;
     setInputVal(val);
-    if (!val) {
+    if (!val || moviePool.length === 0) {
       setSuggestions([]);
       return;
     }
-    const matches = MOVIE_POOL.map(m => m.title).filter(title => 
-      title.toLowerCase().includes(val.toLowerCase())
-    );
+    const matches = moviePool.map(m => m.title).filter((title, index, self) => 
+      title.toLowerCase().includes(val.toLowerCase()) && self.indexOf(title) === index
+    ).slice(0, 8); // Limits autocomplete list to top 8 items so it stays sleek
     setSuggestions(matches);
     setShowSuggestions(true);
   };
@@ -53,10 +57,9 @@ const App = () => {
     if (!inputVal.trim() || gameOver) return;
 
     const guess = inputVal.trim();
-    
-    const isValidMovie = MOVIE_POOL.some(m => m.title.toLowerCase() === guess.toLowerCase());
+    const isValidMovie = moviePool.some(m => m.title.toLowerCase() === guess.toLowerCase());
     if (!isValidMovie) {
-      alert("Please select a movie from the autocomplete dropdown list!");
+      alert("Please select a movie title directly from the autocomplete dropdown list!");
       return;
     }
 
@@ -88,7 +91,6 @@ const App = () => {
       alignItems: 'center',
       boxSizing: 'border-box'
     }}>
-      {/* EXPANDED CONTAINER - Stretched wide for a premium look on monitor screen layouts */}
       <div style={{ 
         maxWidth: '1000px', 
         width: '100%', 
@@ -103,15 +105,15 @@ const App = () => {
         textAlign: 'center' 
       }}>
         
-        {/* Header */}
         <div style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '20px', marginBottom: '30px' }}>
           <h1 style={{ fontSize: '42px', margin: 0, fontWeight: '900', letterSpacing: '6px', background: 'linear-gradient(45deg, #ff4e50, #f9d423)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>MOVIELE</h1>
-          <p style={{ fontSize: '14px', color: '#aaa', margin: '6px 0 0 0', letterSpacing: '2px', fontWeight: 'bold' }}>WIDESCREEN UNLIMITED MOVIE PUZZLE</p>
+          <p style={{ fontSize: '14px', color: '#aaa', margin: '6px 0 0 0', letterSpacing: '2px', fontWeight: 'bold' }}>500 MOVIE MEGALIST MODE</p>
         </div>
 
-        {!gameOver ? (
+        {moviePool.length === 0 ? (
+          <p style={{ color: '#ffb703', fontSize: '18px', fontWeight: 'bold' }}>🎬 Loading up your 500 movie database... One brief moment!</p>
+        ) : !gameOver ? (
           <div>
-            {/* Poster Shape Box */}
             <div style={{ position: 'relative', width: '260px', height: '370px', margin: '0 auto 30px auto', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 10px 25px rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.1)' }}>
               <svg viewBox="0 0 200 300" style={{ width: '100%', height: '100%', filter: `blur(${blurLevels[currentAttempt]}px)`, transition: 'filter 0.5s ease' }}>
                 <rect width="200" height="300" fill="#1b263b"/>
@@ -121,20 +123,17 @@ const App = () => {
               </svg>
             </div>
 
-            {/* Quote Block - Now scales fully wide across your desktop dashboard */}
             <div style={{ background: 'rgba(255, 78, 80, 0.08)', borderLeft: '5px solid #ff4e50', padding: '18px 24px', borderRadius: '8px', marginBottom: '24px', textAlign: 'left' }}>
               <span style={{ fontSize: '12px', color: '#ff4e50', fontWeight: 'bold', display: 'block', marginBottom: '6px', letterSpacing: '0.5px' }}>QUOTE HINT:</span>
               <p style={{ margin: 0, fontStyle: 'italic', fontSize: '18px', color: '#eee', lineHeight: '1.4' }}>"{secretMovie.quote}"</p>
             </div>
 
-            {/* Tracker Dots */}
             <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', justifyContent: 'center' }}>
               {[...Array(maxAttempts)].map((_, i) => (
                 <div key={i} style={{ width: '14px', height: '14px', borderRadius: '50%', background: i < currentAttempt ? '#f44336' : '#2b2b3d' }} />
               ))}
             </div>
 
-            {/* WIDENED Guessing Input Box and Dropdown System */}
             <div style={{ position: 'relative', marginBottom: '20px' }}>
               <input 
                 type="text" 
@@ -142,11 +141,11 @@ const App = () => {
                 onChange={handleInputChange}
                 onFocus={() => setShowSuggestions(true)}
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 250)}
-                placeholder="Type 'a', 's', 't', or 'i' to find movies..." 
+                placeholder="Search across 500 cinematic blockbusters..." 
                 style={{ width: '100%', boxSizing: 'border-box', padding: '16px 22px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.15)', background: '#0f0f15', color: '#fff', fontSize: '16px', outline: 'none' }}
               />
               {showSuggestions && suggestions.length > 0 && (
-                <div style={{ position: 'absolute', width: '100%', background: '#161622', border: '1px solid #2b2b3d', borderRadius: '12px', maxHeight: '180px', overflowY: 'auto', zIndex: 10, marginTop: '6px', textAlign: 'left', boxShadow: '0 10px 25px rgba(0,0,0,0.5)' }}>
+                <div style={{ position: 'absolute', width: '100%', background: '#161622', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', maxHeight: '180px', overflowY: 'auto', zIndex: 10, marginTop: '6px', textAlign: 'left', boxShadow: '0 10px 25px rgba(0,0,0,0.5)' }}>
                   {suggestions.map((title, idx) => (
                     <div 
                       key={idx} 
@@ -162,12 +161,10 @@ const App = () => {
               )}
             </div>
 
-            {/* WIDENED Submit Button */}
             <button onClick={submitGuess} style={{ width: '100%', padding: '16px', border: 'none', borderRadius: '12px', background: 'linear-gradient(45deg, #ff4e50, #f9d423)', color: '#fff', fontWeight: 'bold', fontSize: '18px', cursor: 'pointer', boxShadow: '0 4px 15px rgba(255, 78, 80, 0.2)' }}>
               SUBMIT GUESS
             </button>
 
-            {/* Past Guesses Logs */}
             <div style={{ marginTop: '24px', display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'left' }}>
               {pastGuesses.map((g, i) => (
                 <div key={i} style={{ padding: '12px 16px', borderRadius: '8px', fontSize: '15px', background: '#1f1f2e', color: '#aaa', border: '1px solid rgba(255,255,255,0.05)' }}>❌ {g}</div>
@@ -176,7 +173,6 @@ const App = () => {
 
           </div>
         ) : (
-          /* End Game Window */
           <div style={{ padding: '20px 0' }}>
             <div style={{ fontSize: '64px', marginBottom: '12px' }}>{isWin ? '🎉' : '💀'}</div>
             <h2 style={{ margin: '0 0 12px 0', fontSize: '32px', fontWeight: '800' }}>{isWin ? 'You Got It!' : 'Game Over'}</h2>
