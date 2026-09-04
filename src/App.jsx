@@ -49,144 +49,91 @@ const MOVIE_POOL = [
   { title: "Step Brothers", quote: "Did we just become best friends?" },
   { title: "Twilight", quote: "About three things I was absolutely positive." },
   { title: "Black Panther", quote: "Wakanda forever!" },
-  { title: "Guardians of the Galaxy", quote: "We are Groot." }
-];
-
-const App = () => {
-  const [secretMovie, setSecretMovie] = useState({ title: "", quote: "" });
-  const [currentAttempt, setCurrentAttempt] = useState(0);
-  const [maxAttempts] = useState(5);
-  const [inputVal, setInputVal] = useState('');
-  const [suggestions, setSuggestions] = useState([]);
-  const [pastGuesses, setPastGuesses] = useState([]);
-  const [gameOver, setGameOver] = useState(false);
-  const [isWin, setIsWin] = useState(false);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-
-  const blurLevels =;
-
-  const startNewGame = () => {
-    const randomMovie = MOVIE_POOL[Math.floor(Math.random() * MOVIE_POOL.length)];
-    setSecretMovie(randomMovie);
-    setCurrentAttempt(0);
-    setInputVal('');
-    setPastGuesses([]);
-    setGameOver(false);
-    setIsWin(false);
-  };
-
-  useEffect(() => {
-    startNewGame();
-  }, []);
-
-  const handleInputChange = (e) => {
-    const val = e.target.value;
-    setInputVal(val);
-    if (!val) {
-      setSuggestions([]);
-      return;
-    }
-    const matches = MOVIE_POOL.map(m => m.title).filter((title, index, self) => 
-      title.toLowerCase().includes(val.toLowerCase()) && self.indexOf(title) === index
-    ).slice(0, 8);
-    setSuggestions(matches);
-    setShowSuggestions(true);
-  };
-
-  const submitGuess = () => {
-    if (!inputVal.trim() || gameOver) return;
-
-    const guess = inputVal.trim();
-    const isValidMovie = MOVIE_POOL.some(m => m.title.toLowerCase() === guess.toLowerCase());
-    if (!isValidMovie) {
-      alert("Please select a movie title directly from the autocomplete dropdown list!");
-      return;
-    }
-
-    const updatedGuesses = [...pastGuesses, guess];
-    setPastGuesses(updatedGuesses);
-
-    if (guess.toLowerCase() === secretMovie.title.toLowerCase()) {
-      setIsWin(true);
-      setGameOver(true);
-    } else {
-      const nextAttempt = currentAttempt + 1;
-      setCurrentAttempt(nextAttempt);
-      setInputVal('');
-      if (nextAttempt >= maxAttempts) {
-        setGameOver(true);
-      }
-    }
-  };
-
-  return (
-    <div style={{ 
-      minHeight: '100vh', 
-      width: '100vw',
-      backgroundColor: '#111116',
-      backgroundImage: 'radial-gradient(circle at 50% 50%, #201335 0%, #07050c 100%)',
-      padding: '40px 20px', 
-      display: 'flex', 
-      justifyContent: 'center', 
-      alignItems: 'center',
-      boxSizing: 'border-box'
-    }}>
-      <div style={{ 
-        maxWidth: '1000px', 
-        width: '100%', 
-        fontFamily: 'system-ui, -apple-system, sans-serif', 
-        background: 'rgba(22, 22, 34, 0.8)', 
-        backdropFilter: 'blur(16px)',
-        color: '#fff', 
-        padding: '40px', 
-        borderRadius: '24px', 
-        boxShadow: '0 25px 50px rgba(0,0,0,0.7)', 
-        border: '1px solid rgba(255,255,255,0.06)',
-        textAlign: 'center' 
-      }}>
-        
-        <div style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '20px', marginBottom: '30px' }}>
-          <h1 style={{ fontSize: '42px', margin: 0, fontWeight: '900', letterSpacing: '6px', background: 'linear-gradient(45deg, #ff4e50, #f9d423)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>MOVIELE</h1>
-          <p style={{ fontSize: '14px', color: '#aaa', margin: '6px 0 0 0', letterSpacing: '2px', fontWeight: 'bold' }}>MEGA SHUFFLE MODE</p>
-        </div>
-
-        {!gameOver ? (
-          <div>
-            <div style={{ position: 'relative', width: '260px', height: '370px', margin: '0 auto 30px auto', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 10px 25px rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.1)' }}>
-              <svg viewBox="0 0 200 300" style={{ width: '100%', height: '100%', filter: `blur(${blurLevels[currentAttempt]}px)`, transition: 'filter 0.5s ease' }}>
-                <rect width="200" height="300" fill="#1b263b"/>
-                <circle cx="100" cy="110" r="45" fill="#e63946" opacity="0.8"/>
-                <polygon points="40,300 100,160 160,300" fill="#000814"/>
-                <rect x="85" y="200" width="30" height="40" fill="#ffb703" opacity="0.6"/>
-              </svg>
-            </div>
-
-            <div style={{ background: 'rgba(255, 78, 80, 0.08)', borderLeft: '5px solid #ff4e50', padding: '18px 24px', borderRadius: '8px', marginBottom: '24px', textAlign: 'left' }}>
-              <span style={{ fontSize: '12px', color: '#ff4e50', fontWeight: 'bold', display: 'block', marginBottom: '6px', letterSpacing: '0.5px' }}>QUOTE HINT:</span>
-              <p style={{ margin: 0, fontStyle: 'italic', fontSize: '18px', color: '#eee', lineHeight: '1.4' }}>"{secretMovie.quote}"</p>
-            </div>
-
-            <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', justifyContent: 'center' }}>
-              {[...Array(maxAttempts)].map((_, i) => (
-                <div key={i} style={{ width: '14px', height: '14px', borderRadius: '50%', background: i < currentAttempt ? '#f44336' : '#2b2b3d' }} />
-              ))}
-            </div>
-
-            <div style={{ position: 'relative', marginBottom: '20px' }}>
-              <input 
-                type="text" 
-                value={inputVal}
-                onChange={handleInputChange}
-                onFocus={() => setShowSuggestions(true)}
-                onBlur={() => setTimeout(() => setShowSuggestions(false), 250)}
-                placeholder="Search across dozens of blockbuster movies..." 
-                style={{ width: '100%', boxSizing: 'border-box', padding: '16px 22px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.15)', background: '#0f0f15', color: '#fff', fontSize: '16px', outline: 'none' }}
-              />
-              {showSuggestions && suggestions.length > 0 && (
-                <div style={{ position: 'absolute', width: '100%', background: '#161622', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', maxHeight: '180px', overflowY: 'auto', zIndex: 10, marginTop: '6px', textAlign: 'left', boxShadow: '0 10px 25px rgba(0,0,0,0.5)' }}>
-                  {suggestions.map((title, idx) => (
-                    <div 
-                      key={idx} 
-                      onClick={() => { setInputVal(title); setShowSuggestions(false); }}
-                      style={{ padding: '14px 16px', cursor: 'pointer', fontSize: '15px', borderBottom: '1px solid rgba(255,255,255,0.05)', color: '#fff' }}
-                      onMouseOver={(e) => e.target.style.background = '#252538'}
+  { title: "Guardians of the Galaxy", quote: "We are Groot." },
+  { title: "The Empire Strikes Back", quote: "No, I am your father." },
+  { title: "Casablanca", quote: "Here's looking at you, kid." },
+  { title: "The Silence of the Lambs", quote: "I ate his liver with some fava beans." },
+  { title: "Psycho", quote: "A boy's best friend is his mother." },
+  { title: "The Lord of the Rings: The Fellowship of the Ring", quote: "My precious." },
+  { title: "Jerry Maguire", quote: "Show me the money!" },
+  { title: "Apollo 13", quote: "Houston, we have a problem." },
+  { title: "A Few Good Men", quote: "You can't handle the truth!" },
+  { title: "Dead Poets Society", quote: "Carpe diem. Seize the day, boys." },
+  { title: "Good Will Hunting", quote: "How do you like them apples?" },
+  { title: "Dirty Harry", quote: "Go ahead, make my day." },
+  { title: "The Green Mile", quote: "I'm tired, boss. Tired of being on the road." },
+  { title: "The Truman Show", quote: "In case I don't see ya, good afternoon, good evening, and good night!" },
+  { title: "The Social Network", quote: "A million dollars isn't cool. You know what's cool? A billion dollars." },
+  { title: "The Wolf of Wall Street", quote: "I'm not leaving. The show goes on!" },
+  { title: "Interstellar", quote: "We used to look up at the sky and wonder at our place in the stars." },
+  { title: "Whiplash", quote: "Not quite my tempo." },
+  { title: "The Great Gatsby", quote: "So we beat on, boats against the current." },
+  { title: "Ratatouille", quote: "Anyone can cook." },
+  { title: "Kung Fu Panda", quote: "There is no secret ingredient." },
+  { title: "Madagascar", quote: "I like to move it, move it." },
+  { title: "Despicable Me", quote: "It's so fluffy I'm gonna die!" },
+  { title: "Frozen", quote: "Let it go." },
+  { title: "Moana", quote: "You're welcome!" },
+  { title: "The Karate Kid", quote: "Wax on, wax off." },
+  { title: "The Twilight Saga: New Moon", quote: "Hold on tight, spider monkey." },
+  { title: "Pirates of the Caribbean: The Curse of the Black Pearl", quote: "This is the day you will always remember as the day you almost caught Captain Jack Sparrow." },
+  { title: "Men in Black", quote: "You know the difference between you and me? I make this look good." },
+  { title: "The Mask", quote: "Smokin'!" },
+  { title: "Dumb and Dumber", quote: "So you're telling me there's a chance!" },
+  { title: "Ace Ventura: Pet Detective", quote: "All-righty then!" },
+  { title: "Stand by Me", quote: "I never had any friends later on like the ones I had when I was twelve." },
+  { title: "Clueless", quote: "As if!" },
+  { title: "Legally Blonde", quote: "What, like it's hard?" },
+  { title: "Pitch Perfect", quote: "Aca-awesome!" },
+  { title: "Anchorman: The Legend of Ron Burgundy", quote: "You stay classy, San Diego." },
+  { title: "Zoolander", quote: "I feel like I'm taking crazy pills!" },
+  { title: "Borat", quote: "Very nice!" },
+  { title: "Napoleon Dynamite", quote: "Vote for Pedro." },
+  { title: "Shaun of the Dead", quote: "You've got red on you." },
+  { title: "Hot Fuzz", quote: "It's all for the greater good." },
+  { title: "Scott Pilgrim vs. the World", quote: "I'm in lesbians with you." },
+  { title: "La La Land", quote: "Here's to the ones who dream, foolish as they may seem." },
+  { title: "The Notebook", quote: "If you're a bird, I'm a bird." },
+  { title: "A Star Is Born", quote: "I just wanted to take another look at you." },
+  { title: "Pride and Prejudice", quote: "You have bewitched me, body and soul." },
+  { title: "The Fault in Our Stars", quote: "Okay? Okay." },
+  { title: "The Batman", quote: "I am vengeance." },
+  { title: "Wonder Woman", quote: "It's not about deserve, it's about what you believe." },
+  { title: "The Joker", quote: "I used to think that my life was a tragedy, but now I realize, it's a comedy." },
+  { title: "Alien", quote: "In space, no one can hear you scream." },
+  { title: "The Terminator 2: Judgment Day", quote: "Hasta la vista, baby." },
+  { title: "Saving Private Ryan", quote: "Earn this." },
+  { title: "Schindler's List", quote: "Whoever saves one life saves the world entire." },
+  { title: "The Wizard of Oz", quote: "Toto, I've a feeling we're not in Kansas anymore." },
+  { title: "Snow White and the Seven Dwarfs", quote: "Magic mirror on the wall, who is the fairest one of all?" },
+  { title: "The Good, the Bad and the Ugly", quote: "When you have to shoot, shoot, don't talk." },
+  { title: "Die Hard", quote: "Yippee-ki-yay, movie lover!" },
+  { title: "Predator", quote: "Get to the choppa!" },
+  { title: "The Departed", quote: "I'm the guy who does his job. You must be the other guy." },
+  { title: "No Country for Old Men", quote: "What's the most you ever lost on a coin toss?" },
+  { title: "Wall-E", quote: "Wall-E!" },
+  { title: "Up", quote: "Squirrel!" },
+  { title: "Finding Dory", quote: "Just keep swimming." },
+  { title: "Inside Out", quote: "Do you ever look at someone and wonder, what is going on inside their head?" },
+  { title: "Coco", quote: "Remember me." },
+  { title: "Toy Story 3", quote: "So long, partner." },
+  { title: "The Lion King 2019", quote: "Everything the light touches is our kingdom." },
+  { title: "Aladdin", quote: "Do you trust me?" },
+  { title: "Beauty and the Beast", quote: "Be our guest!" },
+  { title: "The Little Mermaid", quote: "Part of your world." },
+  { title: "Mulan", quote: "The flower that blooms in adversity is the most rare and beautiful of all." },
+  { title: "Tangled", quote: "Live your dream." },
+  { title: "Wreck-It Ralph", quote: "I'm bad, and that's good." },
+  { title: "Zootopia", quote: "Anyone can be anything." },
+  { title: "The Sixth Sense", quote: "I see dead people." },
+  { title: "Signs", quote: "Swing away, Merrill." },
+  { title: "The Village", quote: "Those we do not speak of." },
+  { title: "The Others", quote: "No door is to be opened before the previous one is closed." },
+  { title: "Scream", quote: "What's your favorite scary movie?" },
+  { title: "The Ring", quote: "Seven days." },
+  { title: "The Conjuring", quote: "Want to play a game of hide and clap?" },
+  { title: "Insidious", quote: "It's not the house that is haunted." },
+  { title: "A Nightmare on Elm Street", quote: "One, two, Freddy's coming for you." },
+  { title: "Halloween", quote: "It's Halloween, everyone's entitled to one good scare." },
+  { title: "The Texas Chain Saw Massacre", quote: "The saw is family." },
+  { title: "Get Out", quote: "Now, sink into the floor." },
