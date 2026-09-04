@@ -63,7 +63,7 @@ const App = () => {
   const [isWin, setIsWin] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
-  const blurLevels =;
+  const blurLevels =[30, 20, 10, 5, 0];
 
   const startNewGame = () => {
     const randomMovie = MOVIE_POOL[Math.floor(Math.random() * MOVIE_POOL.length)];
