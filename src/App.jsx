@@ -1,4 +1,4 @@
-javascriptimport { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 const MOVIE_POOL = [
   { title: "Star Wars: A New Hope", quote: "May the Force be with you." },
